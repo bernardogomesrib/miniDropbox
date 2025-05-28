@@ -1,0 +1,22 @@
+{"properties": [
+  {
+    "name": "minio.access-key",
+    "type": "java.lang.String",
+    "description": "A description for 'minio.access-key'"
+  },
+  {
+    "name": "minio.secret-key",
+    "type": "java.lang.String",
+    "description": "A description for 'minio.secret-key'"
+  },
+  {
+    "name": "minio.url",
+    "type": "java.lang.String",
+    "description": "A description for 'minio.url'"
+  },
+  {
+    "name": "ip.local",
+    "type": "java.lang.String",
+    "description": "A description for 'ip.local'"
+  }
+]}
