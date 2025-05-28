@@ -29,6 +29,8 @@ public class Pasta extends BaseEntity {
     @OneToMany(mappedBy = "pastaPai", cascade = CascadeType.ALL)
     private List<Pasta> subpastas;
 
+    private List<String> compartilhadoCom;
+
     @ManyToOne
     @JoinColumn(name = "pasta_pai_id")
     private Pasta pastaPai;
@@ -36,6 +38,7 @@ public class Pasta extends BaseEntity {
     @OneToMany(mappedBy = "pasta", cascade = CascadeType.ALL)
     private List<Arquivo> arquivos;
 
+    
     
     
 }

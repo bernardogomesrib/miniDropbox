@@ -4,7 +4,6 @@ package com.mini_drive.drive.entities.usuario;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mini_drive.drive.entities.Arquivo;
@@ -29,12 +28,11 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@ToString(exclude = {"pastaRaiz", "pastasCriadas", "pastasAtualizadas", "arquivosCriados", "arquivosAtualizados","minIOInterfacing"})
+@ToString(exclude = {"pastaRaiz", "pastasCriadas", "pastasAtualizadas", "arquivosCriados", "arquivosAtualizados"})
 public class Usuario {
-    @JsonIgnore
-    @Transient
-    @Autowired
-    private MinIOInterfacing minIOInterfacing;
+
+    
+    private static MinIOInterfacing minIOInterfacing;
     private final static int LAST_ACTIVE_INTERVAL = 5;
     @Id
     private String id;
@@ -68,4 +66,7 @@ public class Usuario {
     @OneToMany(mappedBy = "updatedBy")
     private List<Arquivo> arquivosAtualizados;
     
+    public static void setMinioInterfacing(MinIOInterfacing minIOInterfacing) {
+        Usuario.minIOInterfacing = minIOInterfacing;
+    }
 }

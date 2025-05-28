@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+
 import io.minio.BucketExistsArgs;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.ListObjectsArgs;
@@ -47,7 +48,28 @@ public class MinIOInterfacing {
     }
 
     @Transactional
-    public String uploadFile(String bucketName, String nomeUnico, MultipartFile file) throws Exception {
+    public void uploadFile(String bucketName, String nomeUnico, MultipartFile file) throws Exception {
+        try {
+            if (!bucketExists(bucketName)) {
+                createBucket(bucketName);
+            }
+            InputStream inputStream = file.getInputStream();
+
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(nomeUnico)
+                            .stream(inputStream, inputStream.available(), -1)
+                            .contentType(file.getContentType())
+                            .build());
+            /* return getUrl(bucketName, nomeUnico); */
+
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+    @Transactional
+    public String uploadAndGetFile(String bucketName, String nomeUnico, MultipartFile file) throws Exception {
         try {
             if (!bucketExists(bucketName)) {
                 createBucket(bucketName);
@@ -77,6 +99,28 @@ public class MinIOInterfacing {
             throw e;
         }
     }
+
+    // Cria uma "pasta" dentro de um bucket criando um objeto com sufixo "/"
+    @Transactional
+    public void createFolder(String bucketName, String folderName) throws Exception {
+        try {
+            if (!bucketExists(bucketName)) {
+                createBucket(bucketName);
+            }
+            // Em MinIO/S3, pastas são representadas por objetos terminados com "/"
+            minioClient.putObject(
+                PutObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(folderName.endsWith("/") ? folderName : folderName + "/")
+                    .stream(new ByteArrayInputStream(new byte[0]), 0, -1)
+                    .contentType("application/x-directory")
+                    .build()
+            );
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
 
     @Transactional
     public boolean bucketExists(String bucketName) throws Exception {
@@ -172,4 +216,6 @@ public class MinIOInterfacing {
             throw e;
         }
     }
+
+
 }

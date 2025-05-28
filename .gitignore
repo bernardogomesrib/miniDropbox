@@ -1,2 +1,6 @@
 target
 .vscode
+postgres-data
+minio-data1
+minio-data2
+keycloak-*
