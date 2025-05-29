@@ -3,6 +3,8 @@ package com.mini_drive.drive.services;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.mini_drive.drive.controllers.requests.CompartilharRequest;
+import com.mini_drive.drive.controllers.requests.RenomearRequest;
 import com.mini_drive.drive.entities.Arquivo;
 import com.mini_drive.drive.entities.ArquivoDTO;
 import com.mini_drive.drive.entities.Pasta;
@@ -12,6 +14,8 @@ import com.mini_drive.drive.exceptions.UnauthorizedAccessException;
 import com.mini_drive.drive.minio.MinIOInterfacing;
 import com.mini_drive.drive.repositories.ArquivoRepository;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +29,29 @@ public class ArquivoService {
     private final PastaService pastaService;
     private final UsuarioService usuarioService;
     private final MinIOInterfacing minio;
+
+    public Arquivo pegarArquivoPorId(String id, Usuario usuario) {
+        Arquivo arquivo = arquivoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Arquivo não encontrado com o ID: " + id));
+
+        if (arquivo.getCreatedBy().getId().equals(usuario.getId())
+                || (arquivo.getCompartilhadoCom() != null && arquivo.getCompartilhadoCom().contains(usuario.getEmail()))) {
+            return arquivo;
+        } else {
+            throw new UnauthorizedAccessException("Você não tem permissão para acessar este arquivo.");
+        }
+    }
+
+    public Arquivo pegarArquivoPorId(String id, Authentication authentication) {
+        Arquivo arquivo = arquivoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Arquivo não encontrado com o ID: " + id));
+
+        if (arquivo.getCreatedBy().getId().equals(authentication.getName())) {
+            return arquivo;
+        } else {
+            throw new UnauthorizedAccessException("Você não tem permissão para acessar este arquivo.");
+        }
+    }
 
     public Page<ArquivoDTO> toPageDTO(Page<Arquivo> arquivos) throws Exception {
         return arquivos.map(arquivo -> {
@@ -191,4 +218,24 @@ public class ArquivoService {
         return toDTO(copiaArquivo);
     }
 
+	public ArquivoDTO compartilhar(CompartilharRequest req, Authentication authentication) throws Exception {
+        Arquivo arquivo = pegarArquivoPorId(req.getId(),  usuarioService.findUsuario(authentication));
+        List<String> emails = arquivo.getCompartilhadoCom();
+        if(emails == null){
+            emails = new java.util.ArrayList<>();
+        }
+        if(!emails.contains(req.getEmail())){
+            emails.add(req.getEmail());
+            arquivo.setCompartilhadoCom(emails);
+            return toDTO(arquivoRepository.save(arquivo));
+        }else{
+            return toDTO(arquivo);
+        }
+
+	}
+    public ArquivoDTO renomear(RenomearRequest req, Authentication authentication) throws Exception{
+        Arquivo arquivo = pegarArquivoPorId(req.getId(), usuarioService.findUsuario(authentication));
+        arquivo.setNome(req.getNome());
+        return toDTO(arquivoRepository.save(arquivo));
+    }
 }

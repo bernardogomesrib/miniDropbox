@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.mini_drive.drive.controllers.requests.CompartilharRequest;
 import com.mini_drive.drive.controllers.requests.CopiaArquivoRequest;
 import com.mini_drive.drive.controllers.requests.PesquisaRequest;
 import com.mini_drive.drive.controllers.requests.PesquisaRequestCompartilhado;
+import com.mini_drive.drive.controllers.requests.RenomearRequest;
 import com.mini_drive.drive.entities.ArquivoDTO;
 import com.mini_drive.drive.services.ArquivoService;
 
@@ -21,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
@@ -72,9 +75,17 @@ public class ArquivoController {
         return service.copiar(entity.getArquivoId(), entity.getNomeArquivoDestino(),entity.getPastaDestinoId(), authentication);
     }
     
-    
-    @DeleteMapping("delete")
+    @DeleteMapping("apagar")
     public void deleteFile(@RequestParam String id, Authentication authentication) throws Exception {
         service.deletar(id, authentication);
     }
-}
+    @PostMapping("compartilhar")
+    public ArquivoDTO compartilhar(@RequestBody CompartilharRequest req, Authentication authentication) throws Exception {
+        return service.compartilhar(req, authentication);
+    }
+    @PatchMapping("renomear")
+    public ArquivoDTO renomear(RenomearRequest request, Authentication authentication) throws Exception {
+        return service.renomear(request, authentication);
+    }
+} 
+  

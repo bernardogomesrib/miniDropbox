@@ -3,8 +3,7 @@ package com.mini_drive.drive.controllers.requests;
 import lombok.Data;
 
 @Data
-public class PastaRequest {
+public class RenomearPastaRequest {
     private String nome;
-    private String idPastaPai;
-    
+    private String idPasta;
 }
