@@ -12,6 +12,7 @@ import com.mini_drive.drive.entities.usuario.Usuario;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -37,12 +38,12 @@ public class BaseEntity {
     private LocalDateTime updatedAt;
 
     @CreatedBy
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "created_by_id")
     private Usuario createdBy;
 
     @LastModifiedBy
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "updated_by_id")
     private Usuario updatedBy;
 

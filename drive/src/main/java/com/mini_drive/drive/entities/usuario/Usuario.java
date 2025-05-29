@@ -1,17 +1,17 @@
 package com.mini_drive.drive.entities.usuario;
 
-
 import java.time.LocalDateTime;
 import java.util.List;
-
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mini_drive.drive.entities.Arquivo;
 import com.mini_drive.drive.entities.Pasta;
-import com.mini_drive.drive.minio.MinIOInterfacing;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Transient;
@@ -28,11 +28,9 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@ToString(exclude = {"pastaRaiz", "pastasCriadas", "pastasAtualizadas", "arquivosCriados", "arquivosAtualizados"})
+@ToString(exclude = { "pastaRaiz", "pastasCriadas", "pastasAtualizadas", "arquivosCriados", "arquivosAtualizados" })
 public class Usuario {
 
-    
-    private static MinIOInterfacing minIOInterfacing;
     private final static int LAST_ACTIVE_INTERVAL = 5;
     @Id
     private String id;
@@ -41,7 +39,9 @@ public class Usuario {
     private String email;
     private LocalDateTime lastSeenAt;
 
-    @OneToOne(mappedBy = "usuario", cascade = jakarta.persistence.CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "pasta_raiz_id")
+    @JsonIgnore
     private Pasta pastaRaiz;
 
     @Transient
@@ -49,10 +49,6 @@ public class Usuario {
         return lastSeenAt != null && lastSeenAt.isAfter(LocalDateTime.now().minusMinutes(LAST_ACTIVE_INTERVAL));
     }
 
-    @Transient
-    public String getPfpUrl() throws Exception{
-       return minIOInterfacing.pegarImagemDePerfil(this.id+"pfp",this.id);
-    }
     @JsonIgnore
     @OneToMany(mappedBy = "createdBy")
     private List<Pasta> pastasCriadas;
@@ -65,8 +61,4 @@ public class Usuario {
     @JsonIgnore
     @OneToMany(mappedBy = "updatedBy")
     private List<Arquivo> arquivosAtualizados;
-    
-    public static void setMinioInterfacing(MinIOInterfacing minIOInterfacing) {
-        Usuario.minIOInterfacing = minIOInterfacing;
-    }
 }

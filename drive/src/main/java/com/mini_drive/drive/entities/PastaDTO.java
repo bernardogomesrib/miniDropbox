@@ -1,26 +1,42 @@
 package com.mini_drive.drive.entities;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-import com.mini_drive.drive.entities.base.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.mini_drive.drive.entities.usuario.Usuario;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 @Data
 @Builder
-@EqualsAndHashCode(callSuper = true)
-public class PastaDTO extends BaseEntity {
+@JsonPropertyOrder({
+    "id", "nome", "usuario", "compartilhadoCom", 
+    "createdAt", "updatedAt", "createdBy", "updatedBy"
+})
+public class PastaDTO  {
+
+    private String id;
     private String nome;
-
     private Usuario usuario;
-
-    private List<Pasta> subpastas;
-
     private List<String> compartilhadoCom;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private Usuario createdBy;
+    private Usuario updatedBy;
 
-    private List<Arquivo> arquivos;
-
+    public static PastaDTO from(Pasta pasta) {
+        return PastaDTO.builder()
+                .id(pasta.getId())
+                .nome(pasta.getNome())
+                .usuario(pasta.getUsuario())
+                .compartilhadoCom(pasta.getCompartilhadoCom())
+                .createdAt(pasta.getCreatedAt())
+                .updatedAt(pasta.getUpdatedAt())
+                .createdBy(pasta.getCreatedBy())
+                .updatedBy(pasta.getUpdatedBy())
+                .build();
+    }
+    
 }

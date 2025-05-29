@@ -6,7 +6,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.mini_drive.drive.entities.Arquivo;
 import com.mini_drive.drive.entities.ArquivoDTO;
 import com.mini_drive.drive.entities.Pasta;
+import com.mini_drive.drive.entities.usuario.Usuario;
 import com.mini_drive.drive.entities.usuario.UsuarioService;
+import com.mini_drive.drive.exceptions.UnauthorizedAccessException;
 import com.mini_drive.drive.minio.MinIOInterfacing;
 import com.mini_drive.drive.repositories.ArquivoRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,7 @@ public class ArquivoService {
     private final PastaService pastaService;
     private final UsuarioService usuarioService;
     private final MinIOInterfacing minio;
+
     public Page<ArquivoDTO> toPageDTO(Page<Arquivo> arquivos) throws Exception {
         return arquivos.map(arquivo -> {
             try {
@@ -32,6 +35,7 @@ public class ArquivoService {
             }
         });
     }
+
     public ArquivoDTO toDTO(Arquivo arquivo) throws Exception {
         return ArquivoDTO.builder()
                 .createdAt(arquivo.getCreatedAt())
@@ -40,20 +44,21 @@ public class ArquivoService {
                 .updatedBy(arquivo.getUpdatedBy())
                 .compartilhadoCom(arquivo.getCompartilhadoCom())
                 .pasta(arquivo.getPasta())
-                .url(minio.getUrl(arquivo.getPasta().getCreatedBy().getId(), arquivo.getNome()))
+                .url(minio.getUrl(arquivo.getPasta().getCreatedBy().getId(), arquivo.getId()))
                 .compartilhadoCom(arquivo.getCompartilhadoCom())
                 .Id(arquivo.getId())
                 .nome(arquivo.getNome())
                 .tipo(arquivo.getTipo())
                 .tamanho(arquivo.getTamanho())
                 .build();
-              
+
     }
+
     @Transactional
     public ArquivoDTO salvar(MultipartFile arquivo, String pastaId, Authentication authentication) throws Exception {
         Pasta p = (pastaId == null || pastaId.isEmpty())
                 ? pastaService.pegaPastaRaizMinha(authentication)
-                : pastaService.pegarPastaPorId(pastaId, authentication);
+                : pastaService.pegarPastaPorId(pastaId, usuarioService.findUsuario(authentication));
 
         // 1. Salva o Arquivo no banco para gerar o ID
         Arquivo entidade = Arquivo.builder()
@@ -63,13 +68,9 @@ public class ArquivoService {
                 .tamanho(arquivo.getSize())
                 .build();
         Arquivo salvo = arquivoRepository.save(entidade);
-
-        String bucket = p.getCreatedBy().getId();
-        String nomeUnico = salvo.getId(); // Usa o ID do banco como nome do arquivo no MinIO
-
         try {
             // 2. Faz upload no MinIO usando o ID como nome
-            minio.uploadFile(bucket, nomeUnico, arquivo);
+            minio.uploadFile(p.getCreatedBy().getId(), salvo.getId(), arquivo);
             // 3. Atualiza o nomeUnico no banco, se quiser guardar essa informação
             return toDTO(salvo);
         } catch (Exception e) {
@@ -78,14 +79,14 @@ public class ArquivoService {
         }
     }
 
-
     public Page<ArquivoDTO> pesquisar(String nomeArquivo, String pastaId, Pageable pageable,
             Authentication authentication) throws Exception {
         String idDono = authentication.getName();
 
         if (nomeArquivo != null && !nomeArquivo.isEmpty() && pastaId != null && !pastaId.isEmpty()) {
-            return toPageDTO(arquivoRepository.findByNomeContainingAndCreatedByIdAndPastaId(nomeArquivo, idDono, pastaId,
-                    pageable));
+            return toPageDTO(
+                    arquivoRepository.findByNomeContainingAndCreatedByIdAndPastaId(nomeArquivo, idDono, pastaId,
+                            pageable));
         } else if (nomeArquivo != null && !nomeArquivo.isEmpty()) {
             return toPageDTO(arquivoRepository.findByNomeContainingAndCreatedById(nomeArquivo, idDono, pageable));
         } else if (pastaId != null && !pastaId.isEmpty()) {
@@ -139,4 +140,55 @@ public class ArquivoService {
         }
         return toPageDTO(arquivoRepository.findByCompartilhadoComContains(compartilhadoCom, pageable));
     }
+
+    public void deletar(String id, Authentication authentication) throws Exception {
+        String idDono = authentication.getName();
+        Arquivo arquivo = arquivoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Arquivo não encontrado"));
+
+        if (!arquivo.getCreatedBy().getId().equals(idDono)) {
+            throw new UnauthorizedAccessException("Você não tem permissão para deletar este arquivo");
+        }
+
+        // Deleta o arquivo do MinIO
+        minio.deleteFile(arquivo.getPasta().getCreatedBy().getId(), arquivo.getId());
+
+        // Deleta o registro do banco
+        arquivoRepository.delete(arquivo);
+    }
+
+    @Transactional
+    public ArquivoDTO copiar(String arquivoId, String nomeArquivoDestino, String pastaDestinoId,
+            Authentication authentication) throws Exception {
+        Usuario usuario = usuarioService.findUsuario(authentication);
+        Arquivo arquivo = arquivoRepository.findById(arquivoId)
+                .orElseThrow(() -> new RuntimeException("Arquivo não encontrado com o ID: " + arquivoId));
+        Pasta pastaDoArquivo = arquivo.getPasta();
+
+
+        boolean ehDonoArquivo = arquivo.getCreatedBy().getId().equals(usuario.getId());
+        boolean arquivoCompartilhadoComUsuario = arquivo.getCompartilhadoCom() != null && arquivo.getCompartilhadoCom().contains(usuario.getEmail());
+        boolean ehDonoPasta = pastaDoArquivo.getCreatedBy().getId().equals(usuario.getId());
+        boolean pastaCompartilhadaComUsuario = pastaDoArquivo.getCompartilhadoCom() != null && pastaDoArquivo.getCompartilhadoCom().contains(usuario.getEmail());
+
+        if (!(ehDonoArquivo || arquivoCompartilhadoComUsuario || ehDonoPasta || pastaCompartilhadaComUsuario)) {
+            throw new UnauthorizedAccessException("Você não tem permissão para copiar este arquivo");
+        }
+
+        Pasta pastaDestino = (pastaDestinoId == null || pastaDestinoId.isEmpty())
+                ? pastaService.pegaPastaRaizMinha(authentication)
+                : pastaService.pegarPastaPorId(pastaDestinoId, usuario);
+        
+        Arquivo copiaArquivo = arquivoRepository.save(Arquivo.builder()
+                .nome(nomeArquivoDestino != null && !nomeArquivoDestino.isEmpty() ? nomeArquivoDestino : "Cópia de "+arquivo.getNome())
+                .tipo(arquivo.getTipo())
+                .tamanho(arquivo.getTamanho())
+                .pasta(pastaDestino)
+                .build());
+        minio.copiarArquivo(
+                pastaDoArquivo.getCreatedBy().getId(), arquivo.getId(),
+                pastaDestino.getCreatedBy().getId(), copiaArquivo.getId());
+        return toDTO(copiaArquivo);
+    }
+
 }

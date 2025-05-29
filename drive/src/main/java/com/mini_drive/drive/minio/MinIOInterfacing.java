@@ -22,8 +22,10 @@ import io.minio.StatObjectArgs;
 import io.minio.http.Method;
 import io.minio.messages.Item;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class MinIOInterfacing {
     @Autowired
     private MinioClient minioClient;
@@ -136,6 +138,7 @@ public class MinIOInterfacing {
         try {
             if (!(minioClient.statObject(StatObjectArgs.builder().bucket(bucketName).object(fileName).build())
                     .size() > 0)) {
+                        log.warn("File does not exist: " + fileName + " in bucket: " + bucketName);
                 return;
             }
 
@@ -157,6 +160,26 @@ public class MinIOInterfacing {
                         .removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(item.objectName()).build());
             }
             minioClient.removeBucket(RemoveBucketArgs.builder().bucket(bucketName).build());
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @Transactional
+    public void copiarArquivo(String bucketOrigem, String bucketDestino, String nomeArquivo,String nomeCopia) throws Exception {
+        try {
+            if (!bucketExists(bucketDestino)) {
+                createBucket(bucketDestino);
+            }
+            minioClient.copyObject(
+                    io.minio.CopyObjectArgs.builder()
+                            .source(io.minio.CopySource.builder()
+                                    .bucket(bucketOrigem)
+                                    .object(nomeArquivo)
+                                    .build())
+                            .bucket(bucketDestino)
+                            .object(nomeCopia)
+                            .build());
         } catch (Exception e) {
             throw e;
         }

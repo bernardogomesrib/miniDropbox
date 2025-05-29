@@ -18,12 +18,23 @@ public class UserSynchronizer {
     private final UsuarioRepository userRepository;
     private final UserMapper userMapper;
     public void synchronizeUser(Jwt token) {
-        log.info("Sincronizando usuario");
-        getEmail(token).ifPresent(email -> {
-            Usuario user = userMapper.toUsuario(token.getClaims());
-            log.info("{}",userRepository.save(user));
-        });
-    }
+    log.info("Sincronizando usuario");
+    getEmail(token).ifPresent(email -> {
+        String id = token.getClaim("sub");
+        Usuario userFromToken = userMapper.toUsuario(token.getClaims());
+        Usuario user;
+        if (id != null && userRepository.existsById(id)) {
+            user = userRepository.findById(id).get();
+            user.setFirstName(userFromToken.getFirstName());
+            user.setLastName(userFromToken.getLastName());
+            user.setEmail(userFromToken.getEmail());
+            user.setLastSeenAt(userFromToken.getLastSeenAt());
+        } else {
+            user = userFromToken;
+        }
+        log.info("{}", userRepository.save(user));
+    });
+}
 
     public Optional<String> getEmail(Jwt token) {
         return Optional.ofNullable(token.getClaim("email"));
