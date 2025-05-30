@@ -74,7 +74,7 @@ public class PastaService {
         Usuario u = usuarioService.findUsuario(authentication);
         return PastaDTO.from(pastaRepository.save(Pasta.builder()
                 .nome(request.getNome())
-                .pastaPai(pegarPastaPorId(request.getIdPastaPai(), u))
+                .pastaPai(!(request.getIdPastaPai()==null)?pegarPastaPorId(request.getIdPastaPai(), u):u.getPastaRaiz())
                 .build()));
     }
 
@@ -147,11 +147,19 @@ public class PastaService {
 	}
 
 	public void apagarPasta(String id, Authentication authentication) {
+        Usuario u = usuarioService.findUsuario(authentication);
+        if(u.getPastaRaiz().getId().equals(id)){
+            throw new UnauthorizedAccessException("Você não pode apagar a pasta raiz.");
+        }
 		pastaRepository.delete(pegarPastaPorId(id,authentication));
 	}
 
     public PastaDTO compartilhar(CompartilharRequest req, Authentication authentication){
-        Pasta p = pegarPastaPorId(req.getId(), usuarioService.findUsuario(authentication));
+        Usuario u = usuarioService.findUsuario(authentication);
+        if(u.getPastaRaiz().getId().equals(req.getId())){
+            throw new UnauthorizedAccessException("Você não pode compartilhar a pasta raiz.");
+        }
+        Pasta p = pegarPastaPorId(req.getId(), u);
         List<String> emails = p.getCompartilhadoCom();
         if(emails == null){
             emails = new java.util.ArrayList<>();
