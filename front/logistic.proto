@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package logistics;
+
+service CentralTrackingService {
+  rpc TrackVehicle(stream VehicleStatus) returns (stream CentralCommand);
+}
+
+service DeliveryEstimateService {
+  rpc EstimateDelivery(EstimateRequest) returns (EstimateResponse);
+}
+
+message VehicleStatus {
+  string vehicle_id = 1;
+  int32 x = 2;
+  int32 y = 3;
+  string status = 4;
+  int32 speed = 5;
+}
+
+message CentralCommand {
+  string command = 1;
+  string message = 2;
+}
+
+message EstimateRequest {
+  string vehicle_id = 1;
+  string destination = 2;
+}
+
+message EstimateResponse {
+  string estimate = 1;
+}
