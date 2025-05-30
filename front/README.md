@@ -1,3 +1,14 @@
+# ROTAS
+dentro do arquivo app.routes.ts você entra nas rotas, dentro da pasta paginas tem as paginas, se você entrar na pasta exemplo vai ter um exemplo de rota gerada com o comando 
+```
+ng g c exemplo 
+```
+dentro da pasta 
+```
+front/src/app/paginas/pagina-exemplo/
+```
+
+
 # DemoFront
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.11.
