@@ -8,8 +8,10 @@ import com.mini_drive.drive.controllers.requests.RenomearRequest;
 import com.mini_drive.drive.entities.Arquivo;
 import com.mini_drive.drive.entities.ArquivoDTO;
 import com.mini_drive.drive.entities.Pasta;
+import com.mini_drive.drive.entities.PastaDTO;
 import com.mini_drive.drive.entities.usuario.Usuario;
 import com.mini_drive.drive.entities.usuario.UsuarioService;
+import com.mini_drive.drive.exceptions.ResourceNotFoundException;
 import com.mini_drive.drive.exceptions.UnauthorizedAccessException;
 import com.mini_drive.drive.minio.MinIOInterfacing;
 import com.mini_drive.drive.repositories.ArquivoRepository;
@@ -30,9 +32,14 @@ public class ArquivoService {
     private final UsuarioService usuarioService;
     private final MinIOInterfacing minio;
 
+
+    public ArquivoDTO pegarArquivoPorIdDTO(String id, Authentication authentication) throws Exception{
+        return toDTO(pegarArquivoPorId(id, usuarioService.findUsuario(authentication)));
+    }
+
     public Arquivo pegarArquivoPorId(String id, Usuario usuario) {
         Arquivo arquivo = arquivoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Arquivo não encontrado com o ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Arquivo não encontrado com o ID: " + id));
 
         if (arquivo.getCreatedBy().getId().equals(usuario.getId())
                 || (arquivo.getCompartilhadoCom() != null && arquivo.getCompartilhadoCom().contains(usuario.getEmail()))) {
@@ -44,7 +51,7 @@ public class ArquivoService {
 
     public Arquivo pegarArquivoPorId(String id, Authentication authentication) {
         Arquivo arquivo = arquivoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Arquivo não encontrado com o ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Arquivo não encontrado com o ID: " + id));
 
         if (arquivo.getCreatedBy().getId().equals(authentication.getName())) {
             return arquivo;
@@ -70,7 +77,7 @@ public class ArquivoService {
                 .createdBy(arquivo.getCreatedBy())
                 .updatedBy(arquivo.getUpdatedBy())
                 .compartilhadoCom(arquivo.getCompartilhadoCom())
-                .pasta(arquivo.getPasta())
+                .pasta(PastaDTO.from(arquivo.getPasta()))
                 .url(minio.getUrl(arquivo.getPasta().getCreatedBy().getId(), arquivo.getId()))
                 .compartilhadoCom(arquivo.getCompartilhadoCom())
                 .Id(arquivo.getId())
@@ -92,6 +99,7 @@ public class ArquivoService {
                 .pasta(p)
                 .nome(arquivo.getOriginalFilename())
                 .tipo(arquivo.getContentType())
+                .compartilhadoCom(p.getCompartilhadoCom())
                 .tamanho(arquivo.getSize())
                 .build();
         Arquivo salvo = arquivoRepository.save(entidade);
@@ -112,10 +120,10 @@ public class ArquivoService {
 
         if (nomeArquivo != null && !nomeArquivo.isEmpty() && pastaId != null && !pastaId.isEmpty()) {
             return toPageDTO(
-                    arquivoRepository.findByNomeContainingAndCreatedByIdAndPastaId(nomeArquivo, idDono, pastaId,
+                    arquivoRepository.findByNomeContainingIgnoreCaseAndCreatedByIdAndPastaId(nomeArquivo, idDono, pastaId,
                             pageable));
         } else if (nomeArquivo != null && !nomeArquivo.isEmpty()) {
-            return toPageDTO(arquivoRepository.findByNomeContainingAndCreatedById(nomeArquivo, idDono, pageable));
+            return toPageDTO(arquivoRepository.findByNomeContainingIgnoreCaseAndCreatedById(nomeArquivo, idDono, pageable));
         } else if (pastaId != null && !pastaId.isEmpty()) {
             return toPageDTO(arquivoRepository.findByCreatedByIdAndPastaId(idDono, pastaId, pageable));
         } else {
@@ -135,17 +143,17 @@ public class ArquivoService {
         if (nomeArquivo != null && !nomeArquivo.isEmpty()
                 && idDono != null && !idDono.isEmpty()
                 && pastaId != null && !pastaId.isEmpty()) {
-            return toPageDTO(arquivoRepository.findByNomeContainingAndCreatedByIdAndPastaIdAndCompartilhadoComContains(
+            return toPageDTO(arquivoRepository.findByNomeContainingIgnoreCaseAndCreatedByIdAndPastaIdAndCompartilhadoComContains(
                     nomeArquivo, idDono, pastaId, compartilhadoCom, pageable));
         }
         if (nomeArquivo != null && !nomeArquivo.isEmpty()
                 && idDono != null && !idDono.isEmpty()) {
-            return toPageDTO(arquivoRepository.findByNomeContainingAndCreatedByIdAndCompartilhadoComContains(
+            return toPageDTO(arquivoRepository.findByNomeContainingIgnoreCaseAndCreatedByIdAndCompartilhadoComContains(
                     nomeArquivo, idDono, compartilhadoCom, pageable));
         }
         if (nomeArquivo != null && !nomeArquivo.isEmpty()
                 && pastaId != null && !pastaId.isEmpty()) {
-            return toPageDTO(arquivoRepository.findByNomeContainingAndPastaIdAndCompartilhadoComContains(
+            return toPageDTO(arquivoRepository.findByNomeContainingIgnoreCaseAndPastaIdAndCompartilhadoComContains(
                     nomeArquivo, pastaId, compartilhadoCom, pageable));
         }
         if (idDono != null && !idDono.isEmpty()
@@ -154,7 +162,7 @@ public class ArquivoService {
                     idDono, pastaId, compartilhadoCom, pageable));
         }
         if (nomeArquivo != null && !nomeArquivo.isEmpty()) {
-            return toPageDTO(arquivoRepository.findByNomeContainingAndCompartilhadoComContains(
+            return toPageDTO(arquivoRepository.findByNomeContainingIgnoreCaseAndCompartilhadoComContains(
                     nomeArquivo, compartilhadoCom, pageable));
         }
         if (idDono != null && !idDono.isEmpty()) {
@@ -171,7 +179,7 @@ public class ArquivoService {
     public void deletar(String id, Authentication authentication) throws Exception {
         String idDono = authentication.getName();
         Arquivo arquivo = arquivoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Arquivo não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Arquivo não encontrado"));
 
         if (!arquivo.getCreatedBy().getId().equals(idDono)) {
             throw new UnauthorizedAccessException("Você não tem permissão para deletar este arquivo");
@@ -189,7 +197,7 @@ public class ArquivoService {
             Authentication authentication) throws Exception {
         Usuario usuario = usuarioService.findUsuario(authentication);
         Arquivo arquivo = arquivoRepository.findById(arquivoId)
-                .orElseThrow(() -> new RuntimeException("Arquivo não encontrado com o ID: " + arquivoId));
+                .orElseThrow(() -> new ResourceNotFoundException("Arquivo não encontrado com o ID: " + arquivoId));
         Pasta pastaDoArquivo = arquivo.getPasta();
 
 
@@ -225,7 +233,7 @@ public class ArquivoService {
             emails = new java.util.ArrayList<>();
         }
         if(!emails.contains(req.getEmail())){
-            emails.add(req.getEmail());
+            emails.add(req.getEmail().toLowerCase());
             arquivo.setCompartilhadoCom(emails);
             return toDTO(arquivoRepository.save(arquivo));
         }else{
@@ -238,4 +246,13 @@ public class ArquivoService {
         arquivo.setNome(req.getNome());
         return toDTO(arquivoRepository.save(arquivo));
     }
+
+	public List<Usuario> listarUsuariosCompartilhamento(String id, Authentication authentication) {
+        Arquivo arquivo = pegarArquivoPorId(id, usuarioService.findUsuario(authentication));
+        List<String> emailsCompartilhados = arquivo.getCompartilhadoCom();
+        if (emailsCompartilhados == null || emailsCompartilhados.isEmpty()) {
+            return List.of();
+        }
+        return usuarioService.findUsuariosByEmail(emailsCompartilhados);
+	}
 }

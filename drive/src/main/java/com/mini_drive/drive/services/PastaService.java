@@ -6,11 +6,14 @@ import com.mini_drive.drive.controllers.requests.CompartilharRequest;
 import com.mini_drive.drive.controllers.requests.PastaRequest;
 import com.mini_drive.drive.controllers.requests.PesquisaPastaRequest;
 import com.mini_drive.drive.controllers.requests.PesquisaPastaRequestCompartilhado;
-import com.mini_drive.drive.controllers.requests.RenomearPastaRequest;
+import com.mini_drive.drive.controllers.requests.RenomearRequest;
+import com.mini_drive.drive.entities.Arquivo;
 import com.mini_drive.drive.entities.Pasta;
 import com.mini_drive.drive.entities.PastaDTO;
+import com.mini_drive.drive.entities.PastaDTO2;
 import com.mini_drive.drive.entities.usuario.Usuario;
 import com.mini_drive.drive.entities.usuario.UsuarioService;
+import com.mini_drive.drive.exceptions.ResourceNotFoundException;
 import com.mini_drive.drive.exceptions.UnauthorizedAccessException;
 import com.mini_drive.drive.repositories.PastaRepository;
 
@@ -29,23 +32,24 @@ public class PastaService {
 
     public Pasta pegarPastaPorId(String id, Usuario usuario) {
         Pasta p = pastaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pasta não encontrada com o ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Pasta não encontrada com o ID: " + id));
         if (p.getCreatedBy().getId().equals(usuario.getId()) || p.getCompartilhadoCom().contains(usuario.getEmail())) {
             return p;
         } else {
             throw new UnauthorizedAccessException("Você não tem permissão para acessar esta pasta.");
         }
     }
-    public Pasta pegarPastaPorId(String id, Authentication authentication){
+
+    public Pasta pegarPastaPorId(String id, Authentication authentication) {
         Pasta p = pastaRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Pasta não encontrada com o ID: " + id));
-        
-        if(p.getCreatedBy().getId().equals(authentication.getName())){
+                .orElseThrow(() -> new ResourceNotFoundException("Pasta não encontrada com o ID: " + id));
+
+        if (p.getCreatedBy().getId().equals(authentication.getName())) {
             return p;
-        }else{
+        } else {
             throw new UnauthorizedAccessException("Você não tem permissão para acessar esta pasta.");
         }
-        
+
     }
 
     public Pasta pegaPastaRaizMinha(Authentication authentication) {
@@ -71,10 +75,14 @@ public class PastaService {
     }
 
     public PastaDTO criarPasta(PastaRequest request, Authentication authentication) {
+        if(request.getNome().equals("__root__")) {
+            throw new IllegalArgumentException("Você não pode criar uma pasta com o nome '__root__'.");
+        }
         Usuario u = usuarioService.findUsuario(authentication);
         return PastaDTO.from(pastaRepository.save(Pasta.builder()
                 .nome(request.getNome())
-                .pastaPai(!(request.getIdPastaPai()==null)?pegarPastaPorId(request.getIdPastaPai(), u):u.getPastaRaiz())
+                .pastaPai(!(request.getIdPastaPai() == null) ? pegarPastaPorId(request.getIdPastaPai(), u)
+                        : u.getPastaRaiz())
                 .build()));
     }
 
@@ -84,10 +92,10 @@ public class PastaService {
 
         if (request.getNomePasta() != null && !request.getNomePasta().isEmpty()
                 && request.getPastaPaiId() != null && !request.getPastaPaiId().isEmpty()) {
-            return pastaRepository.findByNomeContainingAndCreatedByAndPastaPaiId(
+            return pastaRepository.findByNomeContainingIgnoreCaseAndCreatedByAndPastaPaiId(
                     request.getNomePasta(), usuario, request.getPastaPaiId(), pageable).map(PastaDTO::from);
         } else if (request.getNomePasta() != null && !request.getNomePasta().isEmpty()) {
-            return pastaRepository.findByNomeContainingAndCreatedBy(
+            return pastaRepository.findByNomeContainingIgnoreCaseAndCreatedBy(
                     request.getNomePasta(), usuario, pageable).map(PastaDTO::from);
         } else if (request.getPastaPaiId() != null && !request.getPastaPaiId().isEmpty()) {
             return pastaRepository.findByCreatedByAndPastaPaiId(
@@ -105,18 +113,18 @@ public class PastaService {
         if (request.getNomePasta() != null && !request.getNomePasta().isEmpty()
                 && request.getIdDono() != null && !request.getIdDono().isEmpty()
                 && request.getPastaPaiId() != null && !request.getPastaPaiId().isEmpty()) {
-            return pastaRepository.findByNomeContainingAndCreatedByIdAndPastaPaiIdAndCompartilhadoComContains(
+            return pastaRepository.findByNomeContainingIgnoreCaseAndCreatedByIdAndPastaPaiIdAndCompartilhadoComContains(
                     request.getNomePasta(), request.getIdDono(), request.getPastaPaiId(), emailUsuario, pageable)
                     .map(PastaDTO::from);
         }
         if (request.getNomePasta() != null && !request.getNomePasta().isEmpty()
                 && request.getIdDono() != null && !request.getIdDono().isEmpty()) {
-            return pastaRepository.findByNomeContainingAndCreatedByIdAndCompartilhadoComContains(
+            return pastaRepository.findByNomeContainingIgnoreCaseAndCreatedByIdAndCompartilhadoComContains(
                     request.getNomePasta(), request.getIdDono(), emailUsuario, pageable).map(PastaDTO::from);
         }
         if (request.getNomePasta() != null && !request.getNomePasta().isEmpty()
                 && request.getPastaPaiId() != null && !request.getPastaPaiId().isEmpty()) {
-            return pastaRepository.findByNomeContainingAndPastaPaiIdAndCompartilhadoComContains(
+            return pastaRepository.findByNomeContainingIgnoreCaseAndPastaPaiIdAndCompartilhadoComContains(
                     request.getNomePasta(), request.getPastaPaiId(), emailUsuario, pageable).map(PastaDTO::from);
         }
         if (request.getIdDono() != null && !request.getIdDono().isEmpty()
@@ -125,7 +133,7 @@ public class PastaService {
                     request.getIdDono(), request.getPastaPaiId(), emailUsuario, pageable).map(PastaDTO::from);
         }
         if (request.getNomePasta() != null && !request.getNomePasta().isEmpty()) {
-            return pastaRepository.findByNomeContainingAndCompartilhadoComContains(
+            return pastaRepository.findByNomeContainingIgnoreCaseAndCompartilhadoComContains(
                     request.getNomePasta(), emailUsuario, pageable).map(PastaDTO::from);
         }
         if (request.getIdDono() != null && !request.getIdDono().isEmpty()) {
@@ -140,36 +148,92 @@ public class PastaService {
                 .map(PastaDTO::from);
     }
 
-	public PastaDTO renomearPasta(RenomearPastaRequest request,Authentication authentication) {
-        Pasta p = pegarPastaPorId(request.getIdPasta(), usuarioService.findUsuario(authentication));
+    public PastaDTO renomearPasta(RenomearRequest request, Authentication authentication) {
+        if (request.getNome().equals("__root__")) {
+            throw new IllegalArgumentException("Você não pode renomear a pasta para '__root__'.");
+        }
+        Pasta p = pegarPastaPorId(request.getId(), usuarioService.findUsuario(authentication));
         p.setNome(request.getNome());
-		return PastaDTO.from(pastaRepository.save(p));
-	}
+        return PastaDTO.from(pastaRepository.save(p));
+    }
 
-	public void apagarPasta(String id, Authentication authentication) {
+    public void apagarPasta(String id, Authentication authentication) {
         Usuario u = usuarioService.findUsuario(authentication);
-        if(u.getPastaRaiz().getId().equals(id)){
+        if (u.getPastaRaiz().getId().equals(id)) {
             throw new UnauthorizedAccessException("Você não pode apagar a pasta raiz.");
         }
-		pastaRepository.delete(pegarPastaPorId(id,authentication));
-	}
+        pastaRepository.delete(pegarPastaPorId(id, authentication));
+    }
 
-    public PastaDTO compartilhar(CompartilharRequest req, Authentication authentication){
+    public PastaDTO compartilhar(CompartilharRequest req, Authentication authentication) {
         Usuario u = usuarioService.findUsuario(authentication);
-        if(u.getPastaRaiz().getId().equals(req.getId())){
+        if (u.getPastaRaiz().getId().equals(req.getId())) {
             throw new UnauthorizedAccessException("Você não pode compartilhar a pasta raiz.");
         }
         Pasta p = pegarPastaPorId(req.getId(), u);
         List<String> emails = p.getCompartilhadoCom();
-        if(emails == null){
+        if (emails == null) {
             emails = new java.util.ArrayList<>();
         }
-        if(emails.contains(req.getEmail())){
-            return PastaDTO.from(p);
-        }else{
+        if (emails.contains(req.getEmail().toLowerCase())) {
+            throw new IllegalArgumentException("A pasta já está compartilhada com este email.");
+        } else {
             emails.add(req.getEmail());
             p.setCompartilhadoCom(emails);
+            for(Pasta pasta : p.getSubpastas()){
+                compartilhar(pasta, req.getEmail());
+            }
+            for(Arquivo arquivo : p.getArquivos()){
+                if(arquivo.getCompartilhadoCom() == null){
+                    arquivo.setCompartilhadoCom(new java.util.ArrayList<>());
+                }
+                if(!arquivo.getCompartilhadoCom().contains(req.getEmail().toLowerCase())){
+                    arquivo.getCompartilhadoCom().add(req.getEmail());
+                }
+            }
             return PastaDTO.from(pastaRepository.save(p));
+        }
+    }
+
+    public void compartilhar(Pasta pasta, String email){
+        if (pasta.getCompartilhadoCom() == null) {
+            pasta.setCompartilhadoCom(new java.util.ArrayList<>());
+        }
+        if (!pasta.getCompartilhadoCom().contains(email.toLowerCase())) {
+            pasta.getCompartilhadoCom().add(email);
+        }
+        for (Pasta subpasta : pasta.getSubpastas()) {
+            compartilhar(subpasta, email);
+        }
+        for (Arquivo arquivo : pasta.getArquivos()) {
+            if (arquivo.getCompartilhadoCom() == null) {
+                arquivo.setCompartilhadoCom(new java.util.ArrayList<>());
+            }
+            if (!arquivo.getCompartilhadoCom().contains(email.toLowerCase())) {
+                arquivo.getCompartilhadoCom().add(email);
+            }
+        }
+    }
+
+
+    public List<Usuario> listarUsuariosCompartilhamento(String id, Authentication authentication) {
+        Pasta pasta = pegarPastaPorId(id, usuarioService.findUsuario(authentication));
+        List<String> compartilhados = pasta.getCompartilhadoCom();
+        return usuarioService.findUsuariosByEmail(compartilhados);
+    }
+
+    public PastaDTO toDTO(Pasta pasta) {
+        if (pasta == null) {
+            return null;
+        } else {
+            return PastaDTO.from(pasta);
+        }
+    }
+    public PastaDTO2 toDTO2(Pasta pasta){
+        if(pasta == null){
+            return null;
+        } else {
+            return PastaDTO2.from(pasta);
         }
     }
 }

@@ -7,16 +7,16 @@ import com.mini_drive.drive.entities.Arquivo;
 
 public interface ArquivoRepository extends JpaRepository<Arquivo, String> {
 
-    Page<Arquivo> findByNomeContainingAndCreatedByIdAndPastaId(
+    Page<Arquivo> findByNomeContainingIgnoreCaseAndCreatedByIdAndPastaId(
             String nome, String idDono, String pastaId, Pageable pageable);
 
-    Page<Arquivo> findByNomeContainingAndCreatedById(
+    Page<Arquivo> findByNomeContainingIgnoreCaseAndCreatedById(
             String nome, String idDono, Pageable pageable);
 
-    Page<Arquivo> findByNomeContainingAndPastaId(
+    Page<Arquivo> findByNomeContainingIgnoreCaseAndPastaId(
             String nome, String pastaId, Pageable pageable);
 
-    Page<Arquivo> findByNomeContaining(
+    Page<Arquivo> findByNomeContainingIgnoreCase(
             String nome, Pageable pageable);
 
     Page<Arquivo> findByPastaId(String pastaId, Pageable pageable);
@@ -26,31 +26,31 @@ public interface ArquivoRepository extends JpaRepository<Arquivo, String> {
     Page<Arquivo> findByCreatedByIdAndPastaId(
             String idDono, String pastaId, Pageable pageable);
 
-    Page<Arquivo> findByCreatedByIdAndNomeContaining(
+    Page<Arquivo> findByCreatedByIdAndNomeContainingIgnoreCase(
             String idDono, String nome, Pageable pageable);
 
-    Page<Arquivo> findByPastaIdAndNomeContaining(
+    Page<Arquivo> findByPastaIdAndNomeIgnoreCaseContaining(
             String pastaId, String nome, Pageable pageable);
 
     Page<Arquivo> findByPastaIdAndCreatedById(
             String pastaId, String idDono, Pageable pageable);
 
-    Page<Arquivo> findByPastaIdAndCreatedByIdAndNomeContaining(
+    Page<Arquivo> findByPastaIdAndCreatedByIdAndNomeContainingIgnoreCase(
             String pastaId, String idDono, String nome, Pageable pageable);
 
-    Page<Arquivo> findByNomeContainingAndCreatedByIdAndPastaIdAndCompartilhadoComContains(
+    Page<Arquivo> findByNomeContainingIgnoreCaseAndCreatedByIdAndPastaIdAndCompartilhadoComContains(
             String nomeArquivo, String idDono, String pastaId, String compartilhadoCom, Pageable pageable);
 
-    Page<Arquivo>findByNomeContainingAndCreatedByIdAndCompartilhadoComContains(
+    Page<Arquivo>findByNomeContainingIgnoreCaseAndCreatedByIdAndCompartilhadoComContains(
                 String nomeArquivo, String idDono, String compartilhadoCom, Pageable pageable);
 
-    Page<Arquivo>findByNomeContainingAndPastaIdAndCompartilhadoComContains(
+    Page<Arquivo>findByNomeContainingIgnoreCaseAndPastaIdAndCompartilhadoComContains(
                 String nomeArquivo, String pastaId, String compartilhadoCom, Pageable pageable);
 
     Page<Arquivo>findByCreatedByIdAndPastaIdAndCompartilhadoComContains(
                 String idDono, String pastaId, String compartilhadoCom, Pageable pageable);
 
-    Page<Arquivo>findByNomeContainingAndCompartilhadoComContains(
+    Page<Arquivo>findByNomeContainingIgnoreCaseAndCompartilhadoComContains(
                 String nomeArquivo, String compartilhadoCom, Pageable pageable);
 
     Page<Arquivo>findByCreatedByIdAndCompartilhadoComContains(

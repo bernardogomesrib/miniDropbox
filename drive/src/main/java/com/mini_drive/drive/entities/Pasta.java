@@ -5,6 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.mini_drive.drive.entities.base.BaseEntity;
 import com.mini_drive.drive.entities.usuario.Usuario;
 
@@ -29,6 +30,10 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonPropertyOrder({
+    "id", "nome","subpastas","arquivos","pastaPai",
+    "updatedAt"
+})
 public class Pasta extends BaseEntity {
     @Column(nullable = false)
     private String nome;

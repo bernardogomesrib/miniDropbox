@@ -11,26 +11,26 @@ public interface PastaRepository extends JpaRepository<Pasta, String> {
 
     Page<Pasta> findByCreatedBy(Usuario usuario, Pageable pageable);
     
-     Page<Pasta> findByNomeContainingAndCreatedByAndPastaPaiId(String nome, Usuario usuario, String pastaPaiId, Pageable pageable);
+     Page<Pasta> findByNomeContainingIgnoreCaseAndCreatedByAndPastaPaiId(String nome, Usuario usuario, String pastaPaiId, Pageable pageable);
 
-    Page<Pasta> findByNomeContainingAndCreatedBy(String nome, Usuario usuario, Pageable pageable);
+    Page<Pasta> findByNomeContainingIgnoreCaseAndCreatedBy(String nome, Usuario usuario, Pageable pageable);
 
     Page<Pasta> findByCreatedByAndPastaPaiId(Usuario usuario, String pastaPaiId, Pageable pageable);
 
     // Métodos para pesquisa compartilhada
-    Page<Pasta> findByNomeContainingAndCreatedByIdAndPastaPaiIdAndCompartilhadoComContains(
+    Page<Pasta> findByNomeContainingIgnoreCaseAndCreatedByIdAndPastaPaiIdAndCompartilhadoComContains(
             String nome, String idDono, String pastaPaiId, String email, Pageable pageable);
 
-    Page<Pasta> findByNomeContainingAndCreatedByIdAndCompartilhadoComContains(
+    Page<Pasta> findByNomeContainingIgnoreCaseAndCreatedByIdAndCompartilhadoComContains(
             String nome, String idDono, String email, Pageable pageable);
 
-    Page<Pasta> findByNomeContainingAndPastaPaiIdAndCompartilhadoComContains(
+    Page<Pasta> findByNomeContainingIgnoreCaseAndPastaPaiIdAndCompartilhadoComContains(
             String nome, String pastaPaiId, String email, Pageable pageable);
 
     Page<Pasta> findByCreatedByIdAndPastaPaiIdAndCompartilhadoComContains(
             String idDono, String pastaPaiId, String email, Pageable pageable);
 
-    Page<Pasta> findByNomeContainingAndCompartilhadoComContains(
+    Page<Pasta> findByNomeContainingIgnoreCaseAndCompartilhadoComContains(
             String nome, String email, Pageable pageable);
 
     Page<Pasta> findByCreatedByIdAndCompartilhadoComContains(

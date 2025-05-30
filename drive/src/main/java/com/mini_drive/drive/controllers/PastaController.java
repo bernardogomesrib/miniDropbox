@@ -1,5 +1,7 @@
 package com.mini_drive.drive.controllers;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,8 +17,11 @@ import com.mini_drive.drive.controllers.requests.CompartilharRequest;
 import com.mini_drive.drive.controllers.requests.PastaRequest;
 import com.mini_drive.drive.controllers.requests.PesquisaPastaRequest;
 import com.mini_drive.drive.controllers.requests.PesquisaPastaRequestCompartilhado;
-import com.mini_drive.drive.controllers.requests.RenomearPastaRequest;
+import com.mini_drive.drive.controllers.requests.RenomearRequest;
+import com.mini_drive.drive.entities.Pasta;
 import com.mini_drive.drive.entities.PastaDTO;
+import com.mini_drive.drive.entities.PastaDTO2;
+import com.mini_drive.drive.entities.usuario.Usuario;
 import com.mini_drive.drive.services.PastaService;
 
 import lombok.RequiredArgsConstructor;
@@ -32,6 +37,20 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class PastaController {
     private final PastaService service;
 
+    @GetMapping("root")
+    public Pasta getRoot(Authentication authentication) {
+        return service.pegaPastaRaizMinha(authentication);
+    }
+    @GetMapping("entrar/{id}")
+    public PastaDTO2 entrarPasta(@RequestParam String id, Authentication authentication) {
+        return service.toDTO2(service.pegarPastaPorId(id, authentication));
+    }
+    @GetMapping("listar/usuarios/{id}")
+    public List<Usuario> listarUsuariosCompartilhamento(@RequestParam String id, Authentication authentication) {
+        return service.listarUsuariosCompartilhamento(id, authentication);
+    }
+    
+    
     @GetMapping("listar")
     public Page<PastaDTO> listarPastas(Authentication authentication,
             @RequestParam(defaultValue = "0") int page,
@@ -75,7 +94,7 @@ public class PastaController {
     }
     
     @PutMapping("renomear")
-    public PastaDTO renomear(RenomearPastaRequest request, Authentication authentication) {
+    public PastaDTO renomear(RenomearRequest request, Authentication authentication) {
         
         return service.renomearPasta(request, authentication);
         

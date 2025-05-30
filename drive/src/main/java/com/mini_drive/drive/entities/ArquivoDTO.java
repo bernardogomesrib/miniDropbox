@@ -21,7 +21,7 @@ public class ArquivoDTO {
     private String tipo;
     private long tamanho;
     private List<String> compartilhadoCom;
-    private Pasta pasta;
+    private PastaDTO pasta;
     private String url;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

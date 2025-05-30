@@ -1,11 +1,14 @@
 package com.mini_drive.drive.controllers;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,13 +20,13 @@ import com.mini_drive.drive.controllers.requests.PesquisaRequest;
 import com.mini_drive.drive.controllers.requests.PesquisaRequestCompartilhado;
 import com.mini_drive.drive.controllers.requests.RenomearRequest;
 import com.mini_drive.drive.entities.ArquivoDTO;
+import com.mini_drive.drive.entities.usuario.Usuario;
 import com.mini_drive.drive.services.ArquivoService;
 
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
@@ -39,6 +42,15 @@ public class ArquivoController {
             @RequestParam(value = "pastaId", required = false) String pastaId,
             Authentication authentication) throws Exception {
         return service.salvar(file, pastaId, authentication);
+    }
+
+    @GetMapping("{id}")
+    public ArquivoDTO getFileById(@RequestParam String id, Authentication authentication) throws Exception {
+        return service.pegarArquivoPorIdDTO(id, authentication);
+    }
+    @GetMapping("listar/usuarios/{id}")
+    public List<Usuario> listarUsuariosCompartilhamento(String id, Authentication authentication) throws Exception {
+        return service.listarUsuariosCompartilhamento(id,authentication);
     }
 
     @GetMapping("pesquisa")
@@ -83,9 +95,9 @@ public class ArquivoController {
     public ArquivoDTO compartilhar(@RequestBody CompartilharRequest req, Authentication authentication) throws Exception {
         return service.compartilhar(req, authentication);
     }
-    @PatchMapping("renomear")
+    @PutMapping("renomear")
     public ArquivoDTO renomear(RenomearRequest request, Authentication authentication) throws Exception {
         return service.renomear(request, authentication);
     }
-} 
+}
   

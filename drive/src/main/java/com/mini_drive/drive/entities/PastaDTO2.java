@@ -12,28 +12,31 @@ import lombok.Data;
 @Data
 @Builder
 @JsonPropertyOrder({
-    "id", "nome", "usuario", "compartilhadoCom", 
+    "id", "nome", "compartilhadoCom","subpastas","arquivos","pastaPai",
     "createdAt", "updatedAt", "createdBy", "updatedBy"
 })
-public class PastaDTO  {
+public class PastaDTO2  {
 
     private String id;
     private String nome;
     private Usuario usuario;
+    private List<PastaDTO> subpastas;
+    private List<Arquivo> arquivos;
     private List<String> compartilhadoCom;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private PastaDTO pastaPai;
     private Usuario createdBy;
     private Usuario updatedBy;
-
-    public static PastaDTO from(Pasta pasta) {
-        if(pasta == null) {
-            return null;
-        }
-        return PastaDTO.builder()
+    
+    public static PastaDTO2 from(Pasta pasta) {
+        return PastaDTO2.builder()
                 .id(pasta.getId())
                 .nome(pasta.getNome())
                 .usuario(pasta.getUsuario())
+                .subpastas(pasta.getSubpastas().stream().map(PastaDTO::from).toList())
+                .arquivos(pasta.getArquivos())
+                .pastaPai(PastaDTO.from(pasta.getPastaPai()))
                 .compartilhadoCom(pasta.getCompartilhadoCom())
                 .createdAt(pasta.getCreatedAt())
                 .updatedAt(pasta.getUpdatedAt())
