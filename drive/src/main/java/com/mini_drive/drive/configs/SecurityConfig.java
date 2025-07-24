@@ -75,7 +75,7 @@ public class SecurityConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOriginPatterns(List.of("http://*.*.*:*"));
+        config.setAllowedOriginPatterns(List.of("http://*.*.*:*", "http://*.*.*.*/**", "https://*.*.*:*", "https://*.*.*.*/**"));
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
 

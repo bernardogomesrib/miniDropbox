@@ -18,5 +18,25 @@
     "name": "ip.local",
     "type": "java.lang.String",
     "description": "A description for 'ip.local'"
+  },
+  {
+    "name": "realm.name",
+    "type": "java.lang.String",
+    "description": "A description for 'realm.name'"
+  },
+  {
+    "name": "implict.login.url",
+    "type": "java.lang.String",
+    "description": "A description for 'implict.login.url'"
+  },
+  {
+    "name": "token.url",
+    "type": "java.lang.String",
+    "description": "A description for 'token.url'"
+  },
+  {
+    "name": "app.url",
+    "type": "java.lang.String",
+    "description": "A description for 'app.url'"
   }
 ]}

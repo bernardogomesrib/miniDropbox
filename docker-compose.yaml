@@ -37,6 +37,7 @@ services:
     image: nginx:latest
     container_name: minio-nginx
     ports:
+      - "80:80"
       - "9000:9000"
       - "9090:9090"
     volumes:
@@ -44,6 +45,9 @@ services:
     depends_on:
       - minio1
       - minio2
+      - keycloak
+      - api
+    restart: always
     networks:
       - minio-net
   db:
@@ -68,8 +72,7 @@ services:
     restart: always
     hostname: keycloak.quiz.local
     domainname: quiz.local
-    ports:
-      - "9080:8080"
+    # Removida a exposição da porta 9080 - só acessível via nginx
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: senha1234
@@ -79,6 +82,10 @@ services:
       KC_DB_URL: jdbc:postgresql://db:5432/drive
       KC_DB_USERNAME: postgres
       KC_DB_PASSWORD: postgres
+      KC_HTTP_RELATIVE_PATH: /keycloak
+      KC_PROXY: edge
+      KC_HOSTNAME_STRICT: 'false'
+      KC_HOSTNAME_STRICT_HTTPS: 'false'
     depends_on:
       - db
     command: ["start-dev","--http-host=0.0.0.0"]
@@ -89,5 +96,38 @@ services:
     
     networks:
       - minio-net
+  api:
+    build:
+      context: ./drive
+      dockerfile: Dockerfile
+    container_name: minio-api
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/drive
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: true
+      SERVER_PORT: 8080
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      IP_LOCAL: ${IP_ACCESS}
+      MINIO_URL: http://${IP_ACCESS}:9000
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://${IP_ACCESS}/keycloak/realms/${REALM_NAME}
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://${IP_ACCESS}/keycloak/realms/${REALM_NAME}/protocol/openid-connect/certs
+      SPRING_SECURITY_OAUTH2_AUTHORIZATIONSERVER_ENDPOINT_OIDC_LOGOUT_URI: http://${IP_ACCESS}/keycloak/realms/${REALM_NAME}/protocol/openid-connect/logout
+      IMPLICT_LOGIN_URL: http://${IP_ACCESS}/keycloak/realms/${REALM_NAME}/protocol/openid-connect/auth
+      TOKEN_URL: http://${IP_ACCESS}/keycloak/realms/${REALM_NAME}/protocol/openid-connect/token
+      SERVER_SERVLET_CONTEXT_PATH: /api
+      APP_URL: http://${IP_ACCESS}/api
+    restart: always
+    depends_on:
+      - db
+      - minio1
+      - minio2
+    networks:
+      - minio-net
+
 networks:
   minio-net:
