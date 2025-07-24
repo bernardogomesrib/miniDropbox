@@ -1,0 +1,1199 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Salve",
+    "description": "API do salve food, ta com fome manda um salve",
+    "termsOfService": "Terms of service",
+    "contact": {
+      "name": "Bernardo",
+      "url": "https://naotenhosite.com/",
+      "email": "bernardogomesrib@gmail.com"
+    },
+    "license": {
+      "name": "Licence name",
+      "url": "https://some-url.com"
+    },
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://100.70.218.121/api",
+      "description": "Remote server"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    },
+    {
+      "bearerAuth2": []
+    }
+  ],
+  "paths": {
+    "/pasta/renomear": {
+      "put": {
+        "tags": ["pasta-controller"],
+        "operationId": "renomear",
+        "parameters": [
+          {
+            "name": "request",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/RenomearRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PastaDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/arquivo/renomear": {
+      "put": {
+        "tags": ["arquivo-controller"],
+        "operationId": "renomear_1",
+        "parameters": [
+          {
+            "name": "request",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/RenomearRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArquivoDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usuario/usuarios": {
+      "post": {
+        "tags": ["usuario-controller"],
+        "operationId": "listarUsuarios",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Usuario"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pasta/criar": {
+      "post": {
+        "tags": ["pasta-controller"],
+        "operationId": "criarPasta",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PastaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PastaDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pasta/compartilhar": {
+      "post": {
+        "tags": ["pasta-controller"],
+        "operationId": "compartilhar",
+        "parameters": [
+          {
+            "name": "req",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/CompartilharRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PastaDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/arquivo/upload": {
+      "post": {
+        "tags": ["arquivo-controller"],
+        "operationId": "uploadFile",
+        "parameters": [
+          {
+            "name": "pastaId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": ["file"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArquivoDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/arquivo/copiar": {
+      "post": {
+        "tags": ["arquivo-controller"],
+        "operationId": "copiar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CopiaArquivoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArquivoDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/arquivo/compartilhar": {
+      "post": {
+        "tags": ["arquivo-controller"],
+        "operationId": "compartilhar_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompartilharRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArquivoDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pasta/root": {
+      "get": {
+        "tags": ["pasta-controller"],
+        "operationId": "getRoot",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pasta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pasta/pesquisar": {
+      "get": {
+        "tags": ["pasta-controller"],
+        "operationId": "pesquisar",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          },
+          {
+            "name": "prop",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "id"
+            }
+          },
+          {
+            "name": "dir",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "DESC"
+            }
+          },
+          {
+            "name": "request",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PesquisaPastaRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedModelPastaDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pasta/pesquisar/compartilhados": {
+      "get": {
+        "tags": ["pasta-controller"],
+        "operationId": "pesquisarCompartilhado",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          },
+          {
+            "name": "prop",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "id"
+            }
+          },
+          {
+            "name": "dir",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "DESC"
+            }
+          },
+          {
+            "name": "request",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PesquisaPastaRequestCompartilhado"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedModelPastaDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pasta/listar": {
+      "get": {
+        "tags": ["pasta-controller"],
+        "operationId": "listarPastas",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          },
+          {
+            "name": "prop",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "id"
+            }
+          },
+          {
+            "name": "dir",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "DESC"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedModelPastaDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pasta/listar/usuarios/{id}": {
+      "get": {
+        "tags": ["pasta-controller"],
+        "operationId": "listarUsuariosCompartilhamento",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Usuario"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pasta/entrar/{id}": {
+      "get": {
+        "tags": ["pasta-controller"],
+        "operationId": "entrarPasta",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PastaDTO2"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/introspect": {
+      "get": {
+        "tags": ["introspect"],
+        "operationId": "introspect",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/arquivo/{id}": {
+      "get": {
+        "tags": ["arquivo-controller"],
+        "operationId": "getFileById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArquivoDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/arquivo/pesquisa": {
+      "get": {
+        "tags": ["arquivo-controller"],
+        "operationId": "pesquisarArquivos",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          },
+          {
+            "name": "prop",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "id"
+            }
+          },
+          {
+            "name": "dir",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "DESC"
+            }
+          },
+          {
+            "name": "pesquisaRequest",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PesquisaRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedModelArquivoDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/arquivo/pesquisa/compartilhados": {
+      "get": {
+        "tags": ["arquivo-controller"],
+        "operationId": "pesquisarCompartilhados",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          },
+          {
+            "name": "prop",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "id"
+            }
+          },
+          {
+            "name": "dir",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "DESC"
+            }
+          },
+          {
+            "name": "pesquisaRequest",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PesquisaRequestCompartilhado"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedModelArquivoDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/arquivo/listar/usuarios/{id}": {
+      "get": {
+        "tags": ["arquivo-controller"],
+        "operationId": "listarUsuariosCompartilhamento_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Usuario"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pasta/apagar": {
+      "delete": {
+        "tags": ["pasta-controller"],
+        "operationId": "apagar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/arquivo/apagar": {
+      "delete": {
+        "tags": ["arquivo-controller"],
+        "operationId": "deleteFile",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RenomearRequest": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        }
+      },
+      "PastaDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "usuario": {
+            "$ref": "#/components/schemas/Usuario"
+          },
+          "compartilhadoCom": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "$ref": "#/components/schemas/Usuario"
+          },
+          "updatedBy": {
+            "$ref": "#/components/schemas/Usuario"
+          }
+        }
+      },
+      "Usuario": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "lastSeenAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "online": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ArquivoDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "tipo": {
+            "type": "string"
+          },
+          "tamanho": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "compartilhadoCom": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "pasta": {
+            "$ref": "#/components/schemas/PastaDTO"
+          },
+          "url": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "$ref": "#/components/schemas/Usuario"
+          },
+          "updatedBy": {
+            "$ref": "#/components/schemas/Usuario"
+          }
+        }
+      },
+      "PastaRequest": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "idPastaPai": {
+            "type": "string"
+          }
+        }
+      },
+      "CompartilharRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": ["email", "id"]
+      },
+      "CopiaArquivoRequest": {
+        "type": "object",
+        "properties": {
+          "arquivoId": {
+            "type": "string"
+          },
+          "pastaDestinoId": {
+            "type": "string"
+          },
+          "nomeArquivoDestino": {
+            "type": "string"
+          }
+        }
+      },
+      "Arquivo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "tipo": {
+            "type": "string"
+          },
+          "tamanho": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pasta": {
+            "$ref": "#/components/schemas/Pasta"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "$ref": "#/components/schemas/Usuario"
+          },
+          "updatedBy": {
+            "$ref": "#/components/schemas/Usuario"
+          }
+        }
+      },
+      "Pasta": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "subpastas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Pasta"
+            }
+          },
+          "arquivos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Arquivo"
+            }
+          },
+          "pastaPai": {
+            "$ref": "#/components/schemas/Pasta"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "$ref": "#/components/schemas/Usuario"
+          },
+          "updatedBy": {
+            "$ref": "#/components/schemas/Usuario"
+          }
+        }
+      },
+      "PesquisaPastaRequest": {
+        "type": "object",
+        "properties": {
+          "nomePasta": {
+            "type": "string"
+          },
+          "pastaPaiId": {
+            "type": "string"
+          }
+        }
+      },
+      "PageMetadata": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "PagedModelPastaDTO": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PastaDTO"
+            }
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageMetadata"
+          }
+        }
+      },
+      "PesquisaPastaRequestCompartilhado": {
+        "type": "object",
+        "properties": {
+          "nomePasta": {
+            "type": "string"
+          },
+          "pastaPaiId": {
+            "type": "string"
+          },
+          "idDono": {
+            "type": "string"
+          }
+        }
+      },
+      "PastaDTO2": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "compartilhadoCom": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "subpastas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PastaDTO"
+            }
+          },
+          "arquivos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Arquivo"
+            }
+          },
+          "pastaPai": {
+            "$ref": "#/components/schemas/PastaDTO"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "$ref": "#/components/schemas/Usuario"
+          },
+          "updatedBy": {
+            "$ref": "#/components/schemas/Usuario"
+          },
+          "usuario": {
+            "$ref": "#/components/schemas/Usuario"
+          }
+        }
+      },
+      "PesquisaRequest": {
+        "type": "object",
+        "properties": {
+          "nomeArquivo": {
+            "type": "string"
+          },
+          "pastaId": {
+            "type": "string"
+          }
+        }
+      },
+      "PagedModelArquivoDTO": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArquivoDTO"
+            }
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageMetadata"
+          }
+        }
+      },
+      "PesquisaRequestCompartilhado": {
+        "type": "object",
+        "properties": {
+          "nomeArquivo": {
+            "type": "string"
+          },
+          "pastaId": {
+            "type": "string"
+          },
+          "idDono": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth2": {
+        "type": "http",
+        "description": "JWT auth description",
+        "in": "header",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "bearerAuth": {
+        "type": "oauth2",
+        "description": "JWT auth description",
+        "in": "header",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "http://100.70.218.121/keycloak/realms/drive/protocol/openid-connect/auth",
+            "tokenUrl": "http://100.70.218.121/keycloak/realms/drive/protocol/openid-connect/token",
+            "scopes": {}
+          }
+        }
+      }
+    }
+  }
+}
