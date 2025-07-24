@@ -72,7 +72,6 @@ services:
     restart: always
     hostname: keycloak.quiz.local
     domainname: quiz.local
-    # Removida a exposição da porta 9080 - só acessível via nginx
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: senha1234
@@ -86,14 +85,20 @@ services:
       KC_PROXY: edge
       KC_HOSTNAME_STRICT: 'false'
       KC_HOSTNAME_STRICT_HTTPS: 'false'
+      # ✅ CONFIGURAÇÕES IMPORTANTES PARA HTTP:
+      KC_HTTP_ENABLED: 'true'
+      KC_HTTPS_REQUIRED: 'none'  # Permite HTTP em desenvolvimento
+      KC_SSL_REQUIRED: 'none'    # Desabilita SSL obrigatório
+      KC_HOSTNAME_URL: 'http://100.70.218.121/keycloak'  # Seu IP atual
+      KC_HOSTNAME_ADMIN_URL: 'http://100.70.218.121/keycloak'
+      KC_FEATURES: 'preview'  # Habilita recursos em preview que podem ajudar
     depends_on:
       - db
-    command: ["start-dev","--http-host=0.0.0.0"]
+    command: ["start-dev", "--http-host=0.0.0.0", "--http-port=8080", "--import-realm"]
     volumes:
       - ./keycloak-data:/opt/jboss/keycloak/standalone/data
       - ./keycloak-themes:/opt/jboss/keycloak/themes
       - ./keycloak-realm:/opt/jboss/keycloak/standalone/configuration/keycloak-realm.json
-    
     networks:
       - minio-net
   api:

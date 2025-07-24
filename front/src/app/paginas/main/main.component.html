@@ -1,9 +1,30 @@
-<div id="main"
-     (mousemove)="onMouseMove($event)"
-     (resize)="onResize($event)"
-     style="position: relative; width: 100vw; height: 100vh;"
-     (click)="definePosicao()"
-     >
+<div id="main" style="position: relative; width: 100vw; height: 100vh;">
+
+  <!-- Status de Autenticação -->
+  <div style="position: absolute; top: 10px; right: 10px; z-index: 1000; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px;">
+    @if (keycloakService.isAuthenticated) {
+      <div>
+        <strong>✅ Autenticado</strong><br>
+        Usuário: {{ keycloakService.fullName || 'N/A' }}<br>
+        <button (click)="doLogout()" style="margin-top: 5px; padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer;">
+          Logout
+        </button>
+      </div>
+    } @else {
+      <div>
+        <strong>❌ Não autenticado</strong><br>
+        <button (click)="doLogin()" style="margin-top: 5px; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">
+          Fazer Login
+        </button>
+        <br>
+        <small style="margin-top: 5px; display: block; opacity: 0.7;">
+          Manual Token: {{ keycloakService.hasManualToken() ? '✅' : '❌' }}
+        </small>
+      </div>
+    }
+  </div>
+
+  <!-- Conteúdo existente -->
     @for (carro of carros; track carro.veiculoId) {
       <div 
         [style.left.px]="carro.clientX"

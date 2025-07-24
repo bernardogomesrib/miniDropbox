@@ -9,7 +9,7 @@ export const routes: Routes = [
   },
   // Rota de exemplo
   {
-    path: '/exemplo',
+    path: 'exemplo',
     component: ExemploComponent
   }
 ];

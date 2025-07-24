@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --host=0.0.0.0 --disable-host-check --port=4269",
+    "start": "ng serve --host=0.0.0.0 --disable-host-check --port=4200",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -23,6 +23,7 @@
     "@tailwindcss/postcss": "^4.1.6",
     "google-protobuf": "^3.21.4",
     "grpc-web": "^1.5.0",
+    "keycloak-js": "^26.2.0",
     "ngx-toastr": "^19.0.0",
     "postcss": "^8.5.3",
     "rxjs": "~7.8.0",
